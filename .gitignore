@@ -1,0 +1,122 @@
+# ============================================
+# Flutter / Dart
+# ============================================
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+Generated.xcconfig
+flutter_export_environment.sh
+pubspec.lock         # (Optional: keep for apps, ignore for packages)
+.melos_tool/
+.melos_state/
+
+# Flutter build outputs
+build/
+**/build/
+android/app/profile/
+android/app/release/
+
+# ============================================
+# Dart
+# ============================================
+.dart_tool/
+*.dart_tool/
+*.log
+*.lock
+*.tmp
+
+# Coverage
+coverage/
+
+# ============================================
+# Android
+# ============================================
+**/android/.gradle/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+
+# Gradle
+.gradle/
+**/build/
+gradle-wrapper.jar
+gradle-wrapper.properties
+
+# Keystore files
+*.keystore
+*.jks
+
+# ============================================
+# iOS / macOS
+# ============================================
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/.symlinks/
+**/ios/Pods/
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+**/macos/Runner/GeneratedPluginRegistrant.swift
+
+# CocoaPods
+Pods/
+Podfile.lock
+.packages
+
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcworkspace
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+
+# ============================================
+# Linux
+# ============================================
+**/linux/flutter/ephemeral/
+**/linux/Debug/
+**/linux/Release/
+
+# ============================================
+# Windows
+# ============================================
+**/windows/flutter/ephemeral/
+**/windows/Debug/
+**/windows/Release/
+**/windows/.vs/
+
+# ============================================
+# Web
+# ============================================
+build/web/
+lib/generated_plugin_registrant.dart
+
+# ============================================
+# IDE / Editors
+# ============================================
+# VS Code
+.vscode/
+.history/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# ============================================
+# Others
+# ============================================
+.env
+*.orig
+*.rej
+*.bak
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.metadata
+fs.json
