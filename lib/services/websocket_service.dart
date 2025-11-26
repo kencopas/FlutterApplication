@@ -46,16 +46,7 @@ class WebSocketService extends ChangeNotifier {
     isConnected = true;
     notifyListeners();
 
-    // Send sessionInit
-    final sessionId = await SessionManager.instance.sessionId;
-    final userId = await SessionManager.instance.userId;
-
-    send(
-      WSPEvent(
-        event: "sessionInit",
-        data: {"sessionId": sessionId, "userId": userId},
-      ),
-    );
+    await sendEvent("sessionInit");
   }
 
   void _handleMessage(String raw) {
@@ -76,13 +67,15 @@ class WebSocketService extends ChangeNotifier {
     }
   }
 
-  void send(WSPEvent event) {
-    final text = jsonEncode(event.toJson());
+  Future<void> sendEvent(String event, [Map<String, dynamic>? payload]) async {
+    final wsp = await WSPEvent.build(event, payload ?? {});
+    final text = jsonEncode(wsp.toJson());
     _channel?.sink.add(text);
   }
 
   @override
   void dispose() {
+    SessionManager.instance.clearSessionId();
     _channel?.sink.close();
     super.dispose();
   }

@@ -19,5 +19,8 @@ class SessionState extends ChangeNotifier {
       // update in-memory state
       updateState(data["state"] ?? {});
     });
+    wss.on("stateUpdate", (data) {
+      updateState(data["state"] ?? {});
+    });
   }
 }

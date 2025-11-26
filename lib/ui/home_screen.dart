@@ -2,11 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/websocket_service.dart';
-import '../core/wsp_event.dart';
 
-import 'message_bubble.dart';
 import '../core/session_state.dart';
 import '../core/session_manager.dart';
+
+import 'dart:convert';
+
+String prettyJsonString(String? jsonString) {
+  if (jsonString == null || jsonString.isEmpty) return "...";
+
+  try {
+    final dynamic jsonObj = jsonDecode(jsonString);
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(jsonObj);
+  } catch (e) {
+    // Not JSON? Just return it.
+    return jsonString;
+  }
+}
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     FutureBuilder<String>(
                       future: SessionManager.instance.userId,
                       builder: (context, snapshot) {
@@ -42,20 +55,27 @@ class HomeScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    FutureBuilder<Map<String, dynamic>>(
-                      future: SessionManager.instance.userData,
+                    const SizedBox(height: 12),
+                    FutureBuilder<String>(
+                      future: SessionManager.instance.userId,
                       builder: (context, snapshot) {
-                        return Text(
-                          "User Data: ${snapshot.data ?? '...'}",
-                          style: const TextStyle(fontSize: 14),
+                        return SelectableText(
+                          "User Data:\n${prettyJsonString(snapshot.data)}",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'monospace',
+                          ),
                         );
                       },
                     ),
                     Consumer<SessionState>(
                       builder: (context, session, _) {
-                        return Text(
-                          "Session State: ${session.state}",
-                          style: const TextStyle(fontSize: 14),
+                        return SelectableText(
+                          "Session State:\n${prettyJsonString(jsonEncode(session.state))}",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'monospace',
+                          ),
                         );
                       },
                     ),
@@ -70,43 +90,20 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        wss.send(WSPEvent(event: "ping", data: {}));
+                      onPressed: () async {
+                        await wss.sendEvent("ping");
                       },
                       child: const Text("Ping"),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        wss.send(
-                          WSPEvent(
-                            event: "statusUpdate",
-                            data: {"timestamp": DateTime.now().toString()},
-                          ),
-                        );
+                      onPressed: () async {
+                        await wss.sendEvent("monopolyMove");
                       },
-                      child: const Text("Status Update"),
+                      child: const Text("Monopoly Move"),
                     ),
                     ElevatedButton(
                       onPressed: () async {
-                        final sessionState = Provider.of<SessionState>(
-                          context,
-                          listen: false,
-                        );
-
-                        final userId = await SessionManager.instance.userId;
-                        final sessionId =
-                            await SessionManager.instance.sessionId;
-
-                        wss.send(
-                          WSPEvent(
-                            event: "saveSession",
-                            data: {
-                              "userId": userId,
-                              "sessionId": sessionId,
-                              "state": sessionState.state,
-                            },
-                          ),
-                        );
+                        await wss.sendEvent("saveSession");
                       },
                       child: const Text("Save"),
                     ),
