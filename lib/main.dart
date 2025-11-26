@@ -22,6 +22,13 @@ void main() {
             // Let SessionState register its handlers
             sessionState.registerHandlers(wss);
 
+            wss.on("landedOnProperty", (data) {
+              // We can't use context here (we're outside widget tree),
+              // so instead store the event and notify listeners:
+              wss.lastPropertyEvent = data;
+              wss.notifyListeners();
+            });
+
             wss.connect();
             return wss;
           },

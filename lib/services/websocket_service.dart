@@ -11,6 +11,7 @@ class WebSocketService extends ChangeNotifier {
 
   bool isConnected = false;
   List<String> messages = [];
+  Map<String, dynamic>? lastPropertyEvent;
 
   final Map<String, void Function(Map<String, dynamic>)> handlers = {};
   final String url;
