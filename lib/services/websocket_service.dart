@@ -10,6 +10,7 @@ class WebSocketService extends ChangeNotifier {
   WebSocketChannel? _channel;
 
   bool isConnected = false;
+  bool _initialized = false;
   List<String> messages = [];
   Map<String, dynamic>? lastPropertyEvent;
 
@@ -18,6 +19,21 @@ class WebSocketService extends ChangeNotifier {
   final SessionState sessionState;
 
   WebSocketService(this.url, this.sessionState);
+
+  void init() {
+    if (_initialized) return;
+    _initialized = true;
+
+    connect();
+
+    // register handlers
+    sessionState.registerHandlers(this);
+
+    on("landedOnProperty", (data) {
+      lastPropertyEvent = data;
+      notifyListeners();
+    });
+  }
 
   // Register handler
   void on(String event, Function(Map<String, dynamic>) handler) {

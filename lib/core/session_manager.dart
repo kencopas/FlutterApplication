@@ -13,18 +13,14 @@ class SessionManager {
   String? _userId;
   Map<String, dynamic>? _userData;
 
-  /// -------------------------------
-  /// EPHEMERAL SESSION ID (resets)
-  /// -------------------------------
+  /// Creates a new session ID if none in memory; Returns `_sessionId`
   Future<String> get sessionId async {
     // Always generate a new one each app launch.
     _sessionId ??= const Uuid().v4();
     return _sessionId!;
   }
 
-  /// -------------------------------
-  /// PERSISTENT USER ID
-  /// -------------------------------
+  /// Checks for `_userId` in memory, then persistent storage, else creates new; Returns `_userId`
   Future<String> get userId async {
     if (_userId != null) return _userId!;
 
@@ -43,9 +39,7 @@ class SessionManager {
     return newId;
   }
 
-  /// -------------------------------
-  /// USER DATA (persistent)
-  /// -------------------------------
+  /// Checks for `_userData` in memory, then persistent storage; Returns `_userData` or empty map
   Future<Map<String, dynamic>> get userData async {
     if (_userData != null) return _userData!;
 
@@ -60,6 +54,7 @@ class SessionManager {
     return {};
   }
 
+  /// Saves user data to persistent storage and updates in-memory cache
   Future<void> saveUserData(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userDataKey, jsonEncode(data));
@@ -67,6 +62,7 @@ class SessionManager {
     print("User data saved: $data");
   }
 
+  /// Clears the in-memory session ID (`_sessionId`)
   void clearSessionId() {
     _sessionId = null;
   }

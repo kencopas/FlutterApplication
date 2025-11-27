@@ -11,25 +11,16 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => SessionState()),
 
-        ChangeNotifierProvider<WebSocketService>(
+        ChangeNotifierProvider(
           create: (context) {
-            final sessionState = Provider.of<SessionState>(
-              context,
-              listen: false,
-            );
+            final sessionState = context.read<SessionState>();
             final wss = WebSocketService("ws://localhost:8080", sessionState);
 
-            // Let SessionState register its handlers
-            sessionState.registerHandlers(wss);
-
-            wss.on("landedOnProperty", (data) {
-              // We can't use context here (we're outside widget tree),
-              // so instead store the event and notify listeners:
-              wss.lastPropertyEvent = data;
-              wss.notifyListeners();
+            // Initialize AFTER the widget tree is mounted
+            Future.microtask(() {
+              wss.init();
             });
 
-            wss.connect();
             return wss;
           },
         ),
