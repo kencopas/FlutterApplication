@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import '../services/websocket_service.dart';
 import '../core/session_state.dart';
-import '../core/session_manager.dart';
 import '../ui/monopoly_board.dart';
 
 /// Pretty JSON (same as your HomeScreen)

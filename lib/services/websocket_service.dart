@@ -29,17 +29,19 @@ class WebSocketService extends ChangeNotifier {
     // register handlers
     sessionState.registerHandlers(this);
 
+    // Game logic handlers
     on("landedOnProperty", (data) {
       lastPropertyEvent = data;
       notifyListeners();
     });
   }
 
-  // Register handler
+  /// Register handler
   void on(String event, Function(Map<String, dynamic>) handler) {
     handlers[event] = handler;
   }
 
+  /// Connect to WebSocket server, initialize sesison with `sessionInit` event
   Future<void> connect() async {
     _channel = WebSocketChannel.connect(Uri.parse(url));
 
@@ -66,6 +68,7 @@ class WebSocketService extends ChangeNotifier {
     await sendEvent("sessionInit");
   }
 
+  /// Handle incoming message by parsing JSON, notifying listeners, and dispatching to registered handler
   void _handleMessage(String raw) {
     print("Received: $raw");
 
@@ -84,12 +87,14 @@ class WebSocketService extends ChangeNotifier {
     }
   }
 
+  /// Send WSP Event to WebSocket server
   Future<void> sendEvent(String event, [Map<String, dynamic>? payload]) async {
     final wsp = await WSPEvent.build(event, payload ?? {});
     final text = jsonEncode(wsp.toJson());
     _channel?.sink.add(text);
   }
 
+  /// Clean up resources
   @override
   void dispose() {
     SessionManager.instance.clearSessionId();

@@ -6,6 +6,7 @@ class WSPEvent {
 
   WSPEvent({required this.event, required this.data});
 
+  /// Build WSPEvent with sessionId and userId included
   static Future<WSPEvent> build(
     String event,
     Map<String, dynamic> payload,

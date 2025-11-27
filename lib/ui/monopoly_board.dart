@@ -78,10 +78,10 @@ class MonopolyBoard extends StatelessWidget {
     final sorted = [...spaces]..sort((a, b) => a.index.compareTo(b.index));
 
     // Split board into edges.
-    final top = sorted.sublist(20, 31);
-    final right = sorted.sublist(31, 40);
     final bottom = sorted.sublist(0, 11).reversed.toList();
     final left = sorted.sublist(11, 20).reversed.toList();
+    final top = sorted.sublist(20, 31);
+    final right = sorted.sublist(31, 40);
 
     return AspectRatio(
       aspectRatio: 1,
