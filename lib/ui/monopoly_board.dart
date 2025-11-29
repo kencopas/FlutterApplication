@@ -1,37 +1,5 @@
 import 'package:flutter/material.dart';
-
-class VisualProperties {
-  final String? color;
-  final String? icon;
-  final String? description;
-  final String? occupiedBy;
-
-  VisualProperties({this.color, this.icon, this.description, this.occupiedBy});
-}
-
-/// Model representing one Monopoly board space.
-class BoardSpaceData {
-  final String name;
-  final String spaceType;
-  final String spaceId;
-  final int spaceIndex;
-  final VisualProperties visualProperties;
-
-  BoardSpaceData({
-    required this.name,
-    required this.spaceType,
-    required this.spaceId,
-    required this.spaceIndex,
-    required this.visualProperties,
-  });
-
-  /// True for the 4 Monopoly corner tiles.
-  bool get isCorner =>
-      spaceIndex == 0 ||
-      spaceIndex == 10 ||
-      spaceIndex == 20 ||
-      spaceIndex == 30;
-}
+import '../models/board_space_data.dart';
 
 /// Widget for rendering a single Monopoly tile.
 class BoardSpaceWidget extends StatelessWidget {

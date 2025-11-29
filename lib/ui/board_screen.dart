@@ -1,9 +1,9 @@
+import 'package:dart_frontend/core/state_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import '../services/websocket_service.dart';
-import '../core/session_state.dart';
 import '../ui/monopoly_board.dart';
 
 /// Pretty JSON (same as your HomeScreen)
@@ -17,27 +17,6 @@ String prettyJsonString(String? jsonString) {
   } catch (_) {
     return jsonString; // fallback to raw string
   }
-}
-
-List<BoardSpaceData> _convertStateToBoard(Map<String, dynamic> sessionState) {
-  List<BoardSpaceData> boardSpaces = [];
-  for (Map<String, dynamic> space in (sessionState["board_spaces"] ?? [])) {
-    boardSpaces.add(
-      BoardSpaceData(
-        name: space["name"] ?? "Unknown",
-        spaceType: space["space_type"] ?? "unknown",
-        spaceId: space["space_id"] ?? "unknown",
-        spaceIndex: space["space_index"] ?? 0,
-        visualProperties: VisualProperties(
-          color: space["visual_properties"]?["color"],
-          icon: space["visual_properties"]?["icon"],
-          description: space["visual_properties"]?["description"],
-          occupiedBy: space["visual_properties"]?["occupied_by"],
-        ),
-      ),
-    );
-  }
-  return boardSpaces;
 }
 
 class BoardScreen extends StatelessWidget {
@@ -88,9 +67,9 @@ class BoardScreen extends StatelessWidget {
                   const Divider(),
 
                   Expanded(
-                    child: Consumer<SessionState>(
+                    child: Consumer<StateManager>(
                       builder: (context, session, _) {
-                        final boardData = _convertStateToBoard(session.state);
+                        final boardData = session.state?.boardSpaces ?? [];
                         return Center(child: MonopolyBoard(spaces: boardData));
                       },
                     ),

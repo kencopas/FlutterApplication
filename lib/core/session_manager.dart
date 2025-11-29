@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -7,11 +6,9 @@ class SessionManager {
   SessionManager._();
 
   static const String _userKey = "userId";
-  static const String _userDataKey = "userData";
 
   String? _sessionId;
   String? _userId;
-  Map<String, dynamic>? _userData;
 
   /// Creates a new session ID if none in memory; Returns `_sessionId`
   Future<String> get sessionId async {
@@ -37,33 +34,5 @@ class SessionManager {
     _userId = newId;
 
     return newId;
-  }
-
-  /// Checks for `_userData` in memory, then persistent storage; Returns `_userData` or empty map
-  Future<Map<String, dynamic>> get userData async {
-    if (_userData != null) return _userData!;
-
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_userDataKey);
-
-    if (raw != null) {
-      _userData = jsonDecode(raw);
-      return _userData!;
-    }
-
-    return {};
-  }
-
-  /// Saves user data to persistent storage and updates in-memory cache
-  Future<void> saveUserData(Map<String, dynamic> data) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userDataKey, jsonEncode(data));
-    _userData = data;
-    print("User data saved: $data");
-  }
-
-  /// Clears the in-memory session ID (`_sessionId`)
-  void clearSessionId() {
-    _sessionId = null;
   }
 }
