@@ -25,90 +25,111 @@ class BoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<WebSocketService>(
-        builder: (context, wss, _) {
-          if (wss.lastPropertyEvent != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final event = wss.lastPropertyEvent!;
-              wss.lastPropertyEvent = null;
-              _showPropertyDialog(context, wss, event);
-            });
-          }
+      body: SafeArea(
+        child: Consumer<WebSocketService>(
+          builder: (context, wss, _) {
+            if (wss.lastPropertyEvent != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final event = wss.lastPropertyEvent!;
+                wss.lastPropertyEvent = null;
+                _showPropertyDialog(context, wss, event);
+              });
+            }
 
-          return Stack(
-            children: [
-              // ============================================================
-              // MAIN MONOPOLY BOARD + HEADER
-              // ============================================================
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            final gameScreenHeader = Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.refresh),
-                          onPressed: () async {
-                            await wss.connect();
-                          },
-                        ),
-                        Text(
-                          wss.isConnected ? "Connected" : "Disconnected",
-                          style: TextStyle(
-                            color: wss.isConnected ? Colors.green : Colors.red,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
+                  // Refresh Button
+                  IconButton(
+                    icon: Icon(Icons.refresh),
+                    onPressed: () async {
+                      await wss.connect();
+                    },
                   ),
-
-                  const Divider(),
-
-                  Expanded(
-                    child: Consumer<StateManager>(
-                      builder: (context, session, _) {
-                        final boardData = session.state?.boardSpaces ?? [];
-                        return Center(child: MonopolyBoard(spaces: boardData));
-                      },
+                  // Connection Status Text
+                  Text(
+                    wss.isConnected ? "Connected" : "Disconnected",
+                    style: TextStyle(
+                      color: wss.isConnected ? Colors.green : Colors.red,
+                      fontSize: 18,
                     ),
                   ),
                 ],
               ),
+            );
 
-              // ============================================================
-              // FLOATING BUTTON OVERLAY (BOTTOM RIGHT)
-              // ============================================================
-              Positioned(
-                bottom: 20,
-                right: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    FloatingActionButton(
-                      heroTag: "btn1",
-                      onPressed: () => wss.sendEvent("monopolyMove"),
-                      child: const Icon(Icons.casino),
+            final gameBoard = Flexible(
+              fit: FlexFit.tight,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Determine the maximum square size available
+                  final size = constraints.biggest.shortestSide;
+
+                  return Center(
+                    child: SizedBox(
+                      width: size,
+                      height: size,
+                      child: MonopolyBoard(
+                        spaces:
+                            context.watch<StateManager>().state?.boardSpaces ??
+                            [],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    FloatingActionButton(
-                      heroTag: "btn2",
-                      onPressed: () => wss.sendEvent("saveSession"),
-                      child: const Icon(Icons.save),
-                    ),
-                    const SizedBox(height: 12),
-                    FloatingActionButton(
-                      heroTag: "btn3",
-                      onPressed: () => wss.sendEvent("loadSession"),
-                      child: const Icon(Icons.download),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
-            ],
-          );
-        },
+            );
+
+            Widget rollDiceButton(double size) {
+              return SizedBox(
+                width: size,
+                height: size,
+                child: FloatingActionButton(
+                  heroTag: "btn1",
+                  onPressed: () => wss.sendEvent("monopolyMove"),
+                  child: Icon(Icons.casino, size: size * 0.5),
+                ),
+              );
+            }
+
+            Widget saveGameButton(double size) {
+              return SizedBox(
+                width: size,
+                height: size,
+                child: FloatingActionButton(
+                  heroTag: "btn2",
+                  onPressed: () => wss.sendEvent("saveSession"),
+                  child: Icon(Icons.save, size: size * 0.5),
+                ),
+              );
+            }
+
+            return Stack(
+              children: [
+                // Monopoly Board + Header
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [gameScreenHeader, const Divider(), gameBoard],
+                ),
+
+                // Action Buttons
+                Positioned(
+                  bottom: 20,
+                  right: 20,
+                  child: Row(
+                    spacing: 10.0,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      rollDiceButton(80),
+                      saveGameButton(80),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
