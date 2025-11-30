@@ -1,9 +1,9 @@
+import 'package:dart_frontend/core/state_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import '../services/websocket_service.dart';
-import '../core/session_state.dart';
 import '../ui/monopoly_board.dart';
 
 /// Pretty JSON (same as your HomeScreen)
@@ -19,120 +19,89 @@ String prettyJsonString(String? jsonString) {
   }
 }
 
-List<BoardSpaceData> _convertStateToBoard(Map<String, dynamic> session) {
-  List<BoardSpaceData> boardSpaces = [];
-  for (var i = 0; i < 40; i++) {
-    boardSpaces.add(
-      BoardSpaceData(index: i, name: "test space $i", type: "property"),
-    );
-  }
-
-  return boardSpaces;
-}
-
 class BoardScreen extends StatelessWidget {
   const BoardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Monopoly Board")),
       body: Consumer<WebSocketService>(
         builder: (context, wss, _) {
-          // ------------------------------------------------------------
-          // 1. Handle "landedOnProperty" event sent from backend
-          // ------------------------------------------------------------
           if (wss.lastPropertyEvent != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final event = wss.lastPropertyEvent!;
-              wss.lastPropertyEvent = null; // clear event after handling
-
+              wss.lastPropertyEvent = null;
               _showPropertyDialog(context, wss, event);
             });
           }
 
-          // ------------------------------------------------------------
-          // 2. UI Display (no game logic here)
-          // ------------------------------------------------------------
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
             children: [
-              // TOP PANEL (status)
-              // Padding(
-              //   padding: const EdgeInsets.all(12),
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       Text(
-              //         wss.isConnected ? "Connected" : "Disconnected",
-              //         style: TextStyle(
-              //           color: wss.isConnected ? Colors.green : Colors.red,
-              //           fontSize: 18,
-              //         ),
-              //       ),
+              // ============================================================
+              // MAIN MONOPOLY BOARD + HEADER
+              // ============================================================
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.refresh),
+                          onPressed: () async {
+                            await wss.connect();
+                          },
+                        ),
+                        Text(
+                          wss.isConnected ? "Connected" : "Disconnected",
+                          style: TextStyle(
+                            color: wss.isConnected ? Colors.green : Colors.red,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-              //       const SizedBox(height: 8),
+                  const Divider(),
 
-              //       // Show user ID
-              //       FutureBuilder<String>(
-              //         future: SessionManager.instance.userId,
-              //         builder: (context, snapshot) {
-              //           return Text(
-              //             "User ID: ${snapshot.data ?? '...'}",
-              //             style: const TextStyle(fontSize: 14),
-              //           );
-              //         },
-              //       ),
-
-              //       const SizedBox(height: 12),
-
-              //       // Current Session State (fully backend-driven)
-              //       Consumer<SessionState>(
-              //         builder: (context, session, _) {
-              //           return SelectableText(
-              //             "Session State:\n${prettyJsonString(jsonEncode(session.state))}",
-              //             style: const TextStyle(
-              //               fontSize: 14,
-              //               fontFamily: 'monospace',
-              //             ),
-              //           );
-              //         },
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              const Divider(),
-
-              // Dynamically rendered board
-              Expanded(
-                child: Consumer<SessionState>(
-                  builder: (context, session, _) {
-                    final boardData = _convertStateToBoard(session.state);
-                    return MonopolyBoard(spaces: boardData);
-                  },
-                ),
+                  Expanded(
+                    child: Consumer<StateManager>(
+                      builder: (context, session, _) {
+                        final boardData = session.state?.boardSpaces ?? [];
+                        return Center(child: MonopolyBoard(spaces: boardData));
+                      },
+                    ),
+                  ),
+                ],
               ),
 
-              const Divider(),
-
-              // ------------------------------------------------------------
-              // 4. USER ACTIONS (all sent to backend)
-              // ------------------------------------------------------------
-              Padding(
-                padding: const EdgeInsets.all(12),
+              // ============================================================
+              // FLOATING BUTTON OVERLAY (BOTTOM RIGHT)
+              // ============================================================
+              Positioned(
+                bottom: 20,
+                right: 20,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    ElevatedButton(
+                    FloatingActionButton(
+                      heroTag: "btn1",
                       onPressed: () => wss.sendEvent("monopolyMove"),
-                      child: const Text("Roll / Move"),
+                      child: const Icon(Icons.casino),
                     ),
-                    ElevatedButton(
+                    const SizedBox(height: 12),
+                    FloatingActionButton(
+                      heroTag: "btn2",
                       onPressed: () => wss.sendEvent("saveSession"),
-                      child: const Text("Save Game"),
+                      child: const Icon(Icons.save),
                     ),
-                    ElevatedButton(
+                    const SizedBox(height: 12),
+                    FloatingActionButton(
+                      heroTag: "btn3",
                       onPressed: () => wss.sendEvent("loadSession"),
-                      child: const Text("Load Game"),
+                      child: const Icon(Icons.download),
                     ),
                   ],
                 ),

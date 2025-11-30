@@ -1,19 +1,19 @@
+import 'package:dart_frontend/core/state_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'services/websocket_service.dart';
-import 'core/session_state.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SessionState()),
+        ChangeNotifierProvider(create: (_) => StateManager()),
 
         ChangeNotifierProvider(
           create: (context) {
-            final sessionState = context.read<SessionState>();
+            final sessionState = context.read<StateManager>();
             final wss = WebSocketService("ws://localhost:8080", sessionState);
 
             // Initialize AFTER the widget tree is mounted

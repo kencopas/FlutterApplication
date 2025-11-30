@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: Colors.blue,
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
       ),
       home: const BoardScreen(),
     );

@@ -1,24 +1,5 @@
 import 'package:flutter/material.dart';
-
-/// Model representing one Monopoly board space.
-class BoardSpaceData {
-  final int index;
-  final String name;
-  final String type;
-  final String? color;
-  final bool owned;
-
-  BoardSpaceData({
-    required this.index,
-    required this.name,
-    required this.type,
-    this.color,
-    this.owned = false,
-  });
-
-  /// True for the 4 Monopoly corner tiles.
-  bool get isCorner => index == 0 || index == 10 || index == 20 || index == 30;
-}
+import '../models/board_space_data.dart';
 
 /// Widget for rendering a single Monopoly tile.
 class BoardSpaceWidget extends StatelessWidget {
@@ -29,16 +10,21 @@ class BoardSpaceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color background;
+    final visualProps = space.visualProperties;
 
-    if (space.color != null) {
-      background = Color(int.parse(space.color!)); // e.g. "0xFFAA0000"
+    if (visualProps.color != null) {
+      background = Color(int.parse(visualProps.color!)); // e.g. "0xFFAA0000"
+    } else if (visualProps.occupiedBy == "Player") {
+      background = Colors.red;
+    } else if (visualProps.occupiedBy == "Opponent") {
+      background = Colors.blue;
     } else {
-      background = Colors.white;
+      background = Colors.indigo;
     }
 
     final box = Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 1),
+        border: Border.all(color: Colors.white, width: 1),
         color: background,
       ),
       padding: const EdgeInsets.all(3),
@@ -75,7 +61,8 @@ class MonopolyBoard extends StatelessWidget {
     }
 
     // Ensure proper ordering by index.
-    final sorted = [...spaces]..sort((a, b) => a.index.compareTo(b.index));
+    final sorted = [...spaces]
+      ..sort((a, b) => a.spaceIndex.compareTo(b.spaceIndex));
 
     // Split board into edges.
     final bottom = sorted.sublist(0, 11).reversed.toList();

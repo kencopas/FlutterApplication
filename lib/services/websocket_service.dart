@@ -1,10 +1,9 @@
 import 'dart:convert';
+import 'package:dart_frontend/core/state_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../core/wsp_event.dart';
-import '../core/session_manager.dart';
-import '../core/session_state.dart';
+import '../models/wsp_event.dart';
 
 class WebSocketService extends ChangeNotifier {
   WebSocketChannel? _channel;
@@ -16,9 +15,9 @@ class WebSocketService extends ChangeNotifier {
 
   final Map<String, void Function(Map<String, dynamic>)> handlers = {};
   final String url;
-  final SessionState sessionState;
+  final StateManager stateManager;
 
-  WebSocketService(this.url, this.sessionState);
+  WebSocketService(this.url, this.stateManager);
 
   void init() {
     if (_initialized) return;
@@ -27,7 +26,7 @@ class WebSocketService extends ChangeNotifier {
     connect();
 
     // register handlers
-    sessionState.registerHandlers(this);
+    stateManager.registerHandlers(this);
 
     // Game logic handlers
     on("landedOnProperty", (data) {
@@ -62,6 +61,7 @@ class WebSocketService extends ChangeNotifier {
       },
     );
 
+    await _channel!.ready;
     isConnected = true;
     notifyListeners();
 
@@ -70,7 +70,9 @@ class WebSocketService extends ChangeNotifier {
 
   /// Handle incoming message by parsing JSON, notifying listeners, and dispatching to registered handler
   void _handleMessage(String raw) {
-    print("Received: $raw");
+    print(
+      "Received: ${raw.substring(0, raw.length > 500 ? 500 : raw.length)}${raw.length > 500 ? "... [TRUNCATED]" : ""}",
+    );
 
     final jsonMsg = jsonDecode(raw);
     final event = jsonMsg["event"];
@@ -97,7 +99,6 @@ class WebSocketService extends ChangeNotifier {
   /// Clean up resources
   @override
   void dispose() {
-    SessionManager.instance.clearSessionId();
     _channel?.sink.close();
     super.dispose();
   }
