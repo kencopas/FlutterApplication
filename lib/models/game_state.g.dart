@@ -14,12 +14,16 @@ GameState _$GameStateFromJson(Map<String, dynamic> json) => GameState(
   boardSpaces: (json['board_spaces'] as List<dynamic>)
       .map((e) => BoardSpaceData.fromJson(e as Map<String, dynamic>))
       .toList(),
+  ownedProperties: (json['owned_properties'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
 );
 
 Map<String, dynamic> _$GameStateToJson(GameState instance) => <String, dynamic>{
   'user_id': instance.userId,
   'money_dollars': instance.moneyDollars,
-  'position': instance.position,
   'current_space_id': instance.currentSpaceId,
   'board_spaces': instance.boardSpaces.map((e) => e.toJson()).toList(),
+  'owned_properties': instance.ownedProperties,
+  'position': instance.position,
 };

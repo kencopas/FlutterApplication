@@ -15,6 +15,14 @@ BoardSpaceData _$BoardSpaceDataFromJson(Map<String, dynamic> json) =>
       visualProperties: VisualProperties.fromJson(
         json['visual_properties'] as Map<String, dynamic>,
       ),
+      purchasePrice: (json['purchase_price'] as num?)?.toInt(),
+      rentPrices: (json['rent_prices'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
+      mortgageValue: (json['mortgage_value'] as num?)?.toInt(),
+      hotels: (json['hotels'] as num?)?.toInt(),
+      ownedBy: json['owned_by'] as String?,
+      action: json['action'] as String?,
     );
 
 Map<String, dynamic> _$BoardSpaceDataToJson(BoardSpaceData instance) =>
@@ -24,4 +32,10 @@ Map<String, dynamic> _$BoardSpaceDataToJson(BoardSpaceData instance) =>
       'space_id': instance.spaceId,
       'space_index': instance.spaceIndex,
       'visual_properties': instance.visualProperties.toJson(),
+      'purchase_price': instance.purchasePrice,
+      'rent_prices': instance.rentPrices,
+      'mortgage_value': instance.mortgageValue,
+      'owned_by': instance.ownedBy,
+      'hotels': instance.hotels,
+      'action': instance.action,
     };

@@ -11,13 +11,16 @@ class GameState {
   @JsonKey(name: 'money_dollars')
   final int moneyDollars;
 
-  final int position;
-
   @JsonKey(name: 'current_space_id')
   final String currentSpaceId;
 
   @JsonKey(name: 'board_spaces')
   final List<BoardSpaceData> boardSpaces;
+
+  @JsonKey(name: 'owned_properties')
+  final List<String> ownedProperties;
+
+  final int position;
 
   GameState({
     required this.userId,
@@ -25,6 +28,7 @@ class GameState {
     required this.position,
     required this.currentSpaceId,
     required this.boardSpaces,
+    required this.ownedProperties,
   });
 
   factory GameState.fromJson(Map<String, dynamic> json) =>

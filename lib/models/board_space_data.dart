@@ -20,12 +20,33 @@ class BoardSpaceData {
   @JsonKey(name: 'visual_properties')
   final VisualProperties visualProperties;
 
+  @JsonKey(name: 'purchase_price')
+  final int? purchasePrice;
+
+  @JsonKey(name: 'rent_prices')
+  final List<int>? rentPrices;
+
+  @JsonKey(name: 'mortgage_value')
+  final int? mortgageValue;
+
+  @JsonKey(name: 'owned_by')
+  final String? ownedBy;
+
+  final int? hotels;
+  final String? action;
+
   BoardSpaceData({
     required this.name,
     required this.spaceType,
     required this.spaceId,
     required this.spaceIndex,
     required this.visualProperties,
+    this.purchasePrice,
+    this.rentPrices,
+    this.mortgageValue,
+    this.hotels,
+    this.ownedBy,
+    this.action,
   });
 
   factory BoardSpaceData.fromJson(Map<String, dynamic> json) =>

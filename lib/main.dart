@@ -14,7 +14,7 @@ void main() {
         ChangeNotifierProvider(
           create: (context) {
             final sessionState = context.read<StateManager>();
-            final wss = WebSocketService("wss://seem-personal-muscles-his.trycloudflare.com", sessionState);
+            final wss = WebSocketService("ws://localhost:8080", sessionState);
 
             // Initialize AFTER the widget tree is mounted
             Future.microtask(() {

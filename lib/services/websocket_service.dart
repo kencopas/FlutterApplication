@@ -11,7 +11,7 @@ class WebSocketService extends ChangeNotifier {
   bool isConnected = false;
   bool _initialized = false;
   List<String> messages = [];
-  Map<String, dynamic>? lastPropertyEvent;
+  Map<String, dynamic>? lastPromptEvent;
 
   final Map<String, void Function(Map<String, dynamic>)> handlers = {};
   final String url;
@@ -29,8 +29,8 @@ class WebSocketService extends ChangeNotifier {
     stateManager.registerHandlers(this);
 
     // Game logic handlers
-    on("landedOnProperty", (data) {
-      lastPropertyEvent = data;
+    on("showDialog", (data) {
+      lastPromptEvent = data;
       notifyListeners();
     });
   }

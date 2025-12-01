@@ -28,104 +28,79 @@ class BoardScreen extends StatelessWidget {
       body: SafeArea(
         child: Consumer<WebSocketService>(
           builder: (context, wss, _) {
-            if (wss.lastPropertyEvent != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final event = wss.lastPropertyEvent!;
-                wss.lastPropertyEvent = null;
-                _showPropertyDialog(context, wss, event);
-              });
-            }
+            final state = context.watch<StateManager>().state;
 
-            final gameScreenHeader = Padding(
+            // Trigger dialogs using side-effects OUTSIDE build
+            _scheduleDialogIfNeeded(context, wss);
+
+            // Header
+            final header = Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  // Refresh Button
-                  IconButton(
-                    icon: Icon(Icons.refresh),
-                    onPressed: () async {
-                      await wss.connect();
-                    },
-                  ),
-                  // Connection Status Text
-                  Text(
-                    wss.isConnected ? "Connected" : "Disconnected",
-                    style: TextStyle(
-                      color: wss.isConnected ? Colors.green : Colors.red,
-                      fontSize: 18,
-                    ),
-                  ),
+                  _RefreshButton(wss: wss),
+                  _ConnectionStatusText(isConnected: wss.isConnected),
                 ],
               ),
             );
 
-            final gameBoard = Flexible(
-              fit: FlexFit.tight,
+            // Owned properties names
+            final ownedPropertyNames = [
+              for (var propId in state?.ownedProperties ?? [])
+                state?.boardSpaces
+                    .firstWhere((space) => space.spaceId == propId)
+                    .name,
+            ].join(", ");
+
+            // Game State Info
+            final gameStateInfo = Padding(
+              padding: const EdgeInsets.all(12),
+              child: SingleChildScrollView(
+                child: Text(
+                  "Money: \$${state?.moneyDollars}\n"
+                  "Position: ${state?.position}\n"
+                  "Current Space ID: ${state?.currentSpaceId}\n"
+                  "Owned Properties: $ownedPropertyNames\n\n",
+                  style: const TextStyle(fontFamily: 'Courier'),
+                ),
+              ),
+            );
+
+            // Game board
+            final gameBoard = Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  // Determine the maximum square size available
                   final size = constraints.biggest.shortestSide;
 
                   return Center(
                     child: SizedBox(
                       width: size,
                       height: size,
-                      child: MonopolyBoard(
-                        spaces:
-                            context.watch<StateManager>().state?.boardSpaces ??
-                            [],
-                      ),
+                      child: MonopolyBoard(spaces: state?.boardSpaces ?? []),
                     ),
                   );
                 },
               ),
             );
 
-            Widget rollDiceButton(double size) {
-              return SizedBox(
-                width: size,
-                height: size,
-                child: FloatingActionButton(
-                  heroTag: "btn1",
-                  onPressed: () => wss.sendEvent("monopolyMove"),
-                  child: Icon(Icons.casino, size: size * 0.5),
-                ),
-              );
-            }
-
-            Widget saveGameButton(double size) {
-              return SizedBox(
-                width: size,
-                height: size,
-                child: FloatingActionButton(
-                  heroTag: "btn2",
-                  onPressed: () => wss.sendEvent("saveSession"),
-                  child: Icon(Icons.save, size: size * 0.5),
-                ),
-              );
-            }
+            // Action bar overlay
+            final actionBar = Row(
+              spacing: 12,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: const [
+                _RollDiceButton(size: 80),
+                _SaveGameButton(size: 80),
+                _StartOnlineGameButton(size: 80),
+              ],
+            );
 
             return Stack(
               children: [
-                // Monopoly Board + Header
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [gameScreenHeader, const Divider(), gameBoard],
+                  children: [header, const Divider(), gameStateInfo, gameBoard],
                 ),
-
-                // Action Buttons
-                Positioned(
-                  bottom: 20,
-                  right: 20,
-                  child: Row(
-                    spacing: 10.0,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      rollDiceButton(80),
-                      saveGameButton(80),
-                    ],
-                  ),
-                ),
+                Positioned(bottom: 20, right: 20, child: actionBar),
               ],
             );
           },
@@ -134,59 +109,227 @@ class BoardScreen extends StatelessWidget {
     );
   }
 
-  // ========================================================================
-  // PROPERTY DIALOG — Backend-Driven
-  // ========================================================================
-  void _showPropertyDialog(
-    BuildContext context,
-    WebSocketService wss,
-    Map<String, dynamic> event,
-  ) {
-    final prop = event["property"] ?? {};
-    final name = prop["name"] ?? "Unknown";
-    final price = prop["purchase_price"];
-    final spaceIndex = event["space_index"];
-    final owner = prop["owner"]; // null => unowned
+  void _scheduleDialogIfNeeded(BuildContext context, WebSocketService wss) {
+    final event = wss.lastPromptEvent;
+    if (event == null) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final event = wss.lastPromptEvent!;
+      wss.lastPromptEvent = null;
+      _showEventDialog(context, wss, event);
+    });
+  }
+}
 
-    final isUnowned = owner == null;
+class _RefreshButton extends StatelessWidget {
+  final WebSocketService wss;
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text("You landed on $name"),
-        content: Text(
-          isUnowned
-              ? "$name is unowned.\nBuy for \$$price?"
-              : "$name is owned by $owner.\nYou must pay rent.",
-        ),
-        actions: [
-          if (isUnowned) ...[
-            TextButton(
-              onPressed: () {
-                wss.sendEvent("skipProperty", {"spaceIndex": spaceIndex});
-                Navigator.pop(context);
-              },
-              child: const Text("Skip"),
-            ),
-            TextButton(
-              onPressed: () {
-                wss.sendEvent("buyProperty", {"spaceIndex": spaceIndex});
-                Navigator.pop(context);
-              },
-              child: const Text("Buy"),
-            ),
-          ],
+  const _RefreshButton({required this.wss});
 
-          if (!isUnowned)
-            TextButton(
-              onPressed: () {
-                wss.sendEvent("payRent", {"spaceIndex": spaceIndex});
-                Navigator.pop(context);
-              },
-              child: const Text("Pay Rent"),
-            ),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.refresh),
+      onPressed: () async {
+        await wss.connect();
+      },
+    );
+  }
+}
+
+class _ConnectionStatusText extends StatelessWidget {
+  final bool isConnected;
+
+  const _ConnectionStatusText({required this.isConnected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      isConnected ? "Connected" : "Disconnected",
+      style: TextStyle(
+        color: isConnected ? Colors.green : Colors.red,
+        fontSize: 18,
       ),
     );
   }
+}
+
+class _RollDiceButton extends StatelessWidget {
+  final double size;
+
+  const _RollDiceButton({this.size = 80});
+
+  @override
+  Widget build(BuildContext context) {
+    final wss = context.read<WebSocketService>();
+
+    return SizedBox(
+      width: size,
+      height: size,
+      child: FloatingActionButton(
+        heroTag: "roll_dice_btn",
+        onPressed: () => wss.sendEvent("monopolyMove"),
+        child: Icon(Icons.casino, size: size * 0.5),
+      ),
+    );
+  }
+}
+
+class _SaveGameButton extends StatelessWidget {
+  final double size;
+
+  const _SaveGameButton({this.size = 80});
+
+  @override
+  Widget build(BuildContext context) {
+    final wss = context.read<WebSocketService>();
+
+    return SizedBox(
+      width: size,
+      height: size,
+      child: FloatingActionButton(
+        heroTag: "save_game_btn",
+        onPressed: () => wss.sendEvent("saveSession"),
+        child: Icon(Icons.save, size: size * 0.5),
+      ),
+    );
+  }
+}
+
+class _StartOnlineGameButton extends StatelessWidget {
+  final double size;
+
+  const _StartOnlineGameButton({this.size = 80});
+
+  @override
+  Widget build(BuildContext context) {
+    final wss = context.read<WebSocketService>();
+
+    return SizedBox(
+      width: size,
+      height: size,
+      child: FloatingActionButton(
+        heroTag: "online_game_btn",
+        onPressed: () => _showOnlineGameDialog(context, wss),
+        child: Icon(Icons.connect_without_contact, size: size * 0.5),
+      ),
+    );
+  }
+}
+
+class _OnlineGameDialog extends StatefulWidget {
+  @override
+  State<_OnlineGameDialog> createState() => _OnlineGameDialogState();
+}
+
+class _OnlineGameDialogState extends State<_OnlineGameDialog> {
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Start/Join Online Game"),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: const InputDecoration(labelText: "Online Game ID"),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context), // return null
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, controller.text.trim()); // return text
+          },
+          child: const Text("Go"),
+        ),
+      ],
+    );
+  }
+}
+
+void _showOnlineGameDialog(BuildContext context, WebSocketService wss) async {
+  // Open dialog and wait for result
+  final result = await showDialog<String>(
+    context: context,
+    builder: (_) => _OnlineGameDialog(),
+  );
+
+  // If user pressed cancel, result is null
+  if (result != null && result.isNotEmpty) {
+    context.read<WebSocketService>().sendEvent("onlineGame", {
+      "onlineGameId": result,
+    });
+  }
+}
+
+void _showEventDialog(
+  BuildContext context,
+  WebSocketService wss,
+  Map<String, dynamic> event,
+) {
+  final String promptType = event["promptType"];
+  final Map<String, dynamic> space = event["space"];
+  final String message = event["message"] ?? "You landed on a space.";
+  final int? rentAmount = event["rentAmount"];
+  final String? action = event["action"];
+
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text("You landed on ${space["name"] ?? "a space."}"),
+      content: Text(message),
+      actions: [
+        // Alert
+        if (promptType == "alert") ...[
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("OK"),
+          ),
+        ]
+        // Ask to purchase property
+        else if (promptType == "askPurchaseProperty") ...[
+          TextButton(
+            onPressed: () {
+              wss.sendEvent("skipProperty");
+              Navigator.pop(context);
+            },
+            child: const Text("Skip"),
+          ),
+          TextButton(
+            onPressed: () {
+              wss.sendEvent("buyProperty");
+              Navigator.pop(context);
+            },
+            child: const Text("Buy"),
+          ),
+        ]
+        // Pay rent
+        else if (promptType == "payRent" && rentAmount != null) ...[
+          TextButton(
+            onPressed: () {
+              wss.sendEvent("payRentConfirmation");
+              Navigator.pop(context);
+            },
+            child: const Text("Pay Rent"),
+          ),
+        ]
+        // Action space
+        else if (promptType == "actionSpace") ...[
+          TextButton(
+            onPressed: () {
+              wss.sendEvent("performAction", {"action": action});
+              Navigator.pop(context);
+            },
+            child: const Text("Perform Action"),
+          ),
+        ],
+      ],
+    ),
+  );
 }
