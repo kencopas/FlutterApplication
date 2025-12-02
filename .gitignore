@@ -1,33 +1,34 @@
 # ============================================
-# Flutter / Dart
+# Flutter / Dart (Core)
 # ============================================
 .dart_tool/
-.packages
 .flutter-plugins
 .flutter-plugins-dependencies
+.packages
+pubspec.lock                # Optional: keep for apps, ignore for packages
 Generated.xcconfig
 flutter_export_environment.sh
-pubspec.lock         # (Optional: keep for apps, ignore for packages)
 .melos_tool/
 .melos_state/
 
-# Flutter build outputs
+# Build outputs
 build/
 **/build/
 android/app/profile/
 android/app/release/
 
-# ============================================
-# Dart
-# ============================================
-.dart_tool/
-*.dart_tool/
-*.log
-*.lock
-*.tmp
-
 # Coverage
 coverage/
+
+# Temporary / log files
+*.log
+*.tmp
+*.lock
+
+# ============================================
+# Dart (additional)
+# ============================================
+*.dart_tool/
 
 # ============================================
 # Android
@@ -36,16 +37,19 @@ coverage/
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
+android/key.properties
 
 # Gradle
 .gradle/
-**/build/
 gradle-wrapper.jar
 gradle-wrapper.properties
 
-# Keystore files
+# Keystore files (never commit)
 *.keystore
 *.jks
+
+# Firebase (Android)
+android/app/google-services.json
 
 # ============================================
 # iOS / macOS
@@ -55,14 +59,17 @@ gradle-wrapper.properties
 **/ios/.symlinks/
 **/ios/Pods/
 **/ios/Runner/GeneratedPluginRegistrant.*
+
 **/macos/Flutter/ephemeral/
 **/macos/Pods/
 **/macos/Runner/GeneratedPluginRegistrant.swift
 
+# Firebase (iOS)
+ios/Runner/GoogleService-Info.plist
+
 # CocoaPods
 Pods/
 Podfile.lock
-.packages
 
 # Xcode
 xcuserdata/
@@ -81,6 +88,8 @@ DerivedData/
 **/linux/flutter/ephemeral/
 **/linux/Debug/
 **/linux/Release/
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugin_registrant.h
 
 # ============================================
 # Windows
@@ -89,12 +98,14 @@ DerivedData/
 **/windows/Debug/
 **/windows/Release/
 **/windows/.vs/
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.h
 
 # ============================================
 # Web
 # ============================================
 build/web/
-lib/generated_plugin_registrant.dart
+lib/generated_plugin_registrant.dart  # generated—ignore
 
 # ============================================
 # IDE / Editors
@@ -108,15 +119,31 @@ lib/generated_plugin_registrant.dart
 *.iml
 
 # ============================================
-# Others
+# Secrets / Environment
 # ============================================
 .env
+.env.*
+*.key
+*.pem
+*.p12
+*.p7s
+*.crt
+*.cer
+firebase_app_id_file.json
+
+# ============================================
+# OS Junk Files
+# ============================================
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Miscellaneous
+# ============================================
 *.orig
 *.rej
 *.bak
 *.swp
 *.swo
-.DS_Store
-Thumbs.db
 .metadata
 fs.json
