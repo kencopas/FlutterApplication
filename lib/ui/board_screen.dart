@@ -67,24 +67,22 @@ class BoardScreen extends StatelessWidget {
             );
 
             // Game board
-            final gameBoard = Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final size = constraints.biggest.shortestSide;
+            final gameBoard = LayoutBuilder(
+              builder: (context, constraints) {
+                final size = constraints.biggest.shortestSide;
 
-                  return Center(
-                    child: SizedBox(
-                      width: size,
-                      height: size,
-                      child: MonopolyBoard(spaces: state?.boardSpaces ?? []),
-                    ),
-                  );
-                },
-              ),
+                return Center(
+                  child: SizedBox(
+                    width: size,
+                    height: size,
+                    child: MonopolyBoard(spaces: state?.boardSpaces ?? []),
+                  ),
+                );
+              },
             );
 
-            // Action bar overlay
-            final actionBar = Row(
+            // Portrait Action bar overlay
+            final portraitActionBar = Row(
               spacing: 12,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: const [
@@ -94,31 +92,97 @@ class BoardScreen extends StatelessWidget {
               ],
             );
 
-            return Stack(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [header, const Divider(), gameStateInfo, gameBoard],
-                ),
-                Positioned(bottom: 20, right: 20, child: actionBar),
+            final landscapeActionBar = Column(
+              spacing: 12,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: const [
+                _RollDiceButton(size: 80),
+                _SaveGameButton(size: 80),
+                _StartOnlineGameButton(size: 80),
               ],
+            );
+
+            Widget _responsiveBoard(BuildContext context) {
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final boardSize = constraints.biggest.shortestSide;
+
+                  return SizedBox(
+                    width: boardSize,
+                    height: boardSize,
+                    child: gameBoard,
+                  );
+                },
+              );
+            }
+
+            Widget _buildLandscapeLayout(BuildContext context) {
+              return Stack(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [header, const Divider(), gameStateInfo],
+                        ),
+                      ),
+
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 30),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: _responsiveBoard(context),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Positioned(bottom: 20, right: 20, child: landscapeActionBar),
+                ],
+              );
+            }
+
+            Widget _buildPortraitLayout(BuildContext context) {
+              return Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      header,
+                      const Divider(),
+                      gameStateInfo,
+
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 80),
+                        child: _responsiveBoard(context),
+                      ),
+                    ],
+                  ),
+                  Positioned(bottom: 20, right: 20, child: portraitActionBar),
+                ],
+              );
+            }
+
+            return OrientationBuilder(
+              builder: (context, orientation) {
+                final isPortrait = orientation == Orientation.portrait;
+
+                return SafeArea(
+                  child: isPortrait
+                      ? _buildPortraitLayout(context)
+                      : _buildLandscapeLayout(context),
+                );
+              },
             );
           },
         ),
       ),
     );
-  }
-
-  void _scheduleDialogIfNeeded(BuildContext context, WebSocketService wss) {
-    final event = wss.lastPromptEvent;
-    if (event == null) {
-      return;
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final event = wss.lastPromptEvent!;
-      wss.lastPromptEvent = null;
-      _showEventDialog(context, wss, event);
-    });
   }
 }
 
@@ -332,4 +396,16 @@ void _showEventDialog(
       ],
     ),
   );
+}
+
+void _scheduleDialogIfNeeded(BuildContext context, WebSocketService wss) {
+  final event = wss.lastPromptEvent;
+  if (event == null) {
+    return;
+  }
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final event = wss.lastPromptEvent!;
+    wss.lastPromptEvent = null;
+    _showEventDialog(context, wss, event);
+  });
 }
