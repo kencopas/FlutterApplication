@@ -47,5 +47,9 @@ class SessionManager {
     return _gameId!;
   }
 
+  void set gameId(String value) {
+    _gameId = value;
+  }
+
   String? get currentUserId => _cachedUserId;
 }

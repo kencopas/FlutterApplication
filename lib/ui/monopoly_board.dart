@@ -22,12 +22,15 @@ class BoardSpaceWidget extends StatelessWidget {
     final vp = space.visualProperties;
     final userId = SessionManager.instance.currentUserId;
 
-    if (vp.color == "green") {
-      bg = Colors.green;
-    } else if (vp.color == "blue") {
-      bg = Colors.blue;
-    } else {
+    if (vp.occupiedBy.isEmpty) {
+      // Unoccupied
       bg = Colors.transparent;
+    } else if (vp.occupiedBy.contains(userId)) {
+      // User Occupied
+      bg = Colors.green;
+    } else {
+      // Opponent Occupied
+      bg = Colors.blue;
     }
 
     return InkWell(

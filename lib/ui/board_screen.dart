@@ -59,24 +59,6 @@ class _BoardScreenState extends State<BoardScreen> {
           builder: (context, wss, _) {
             final gameState = context.watch<StateManager>().state;
             final userState = gameState?.playerStates[userId];
-            List<BoardSpaceData> boardSpaces = [];
-
-            if (gameState != null) {
-              boardSpaces = gameState.gameBoard.map((space) => space.copy()).toList();
-              for (final entry in gameState.playerStates.entries) {
-                final playerId = entry.key;
-                final playerState = entry.value;
-                final playerPosition = playerState.position;
-
-                if (playerId == userId) {
-                  // User-occupied space
-                  boardSpaces[playerPosition].visualProperties.color = "green";
-                } else {
-                  // Opponent-occupied space
-                  boardSpaces[playerPosition].visualProperties.color = "blue";
-                }
-              }
-            }
 
             // Trigger dialogs using side-effects OUTSIDE build
             _scheduleDialogIfNeeded(context, wss);
@@ -123,7 +105,9 @@ class _BoardScreenState extends State<BoardScreen> {
                   child: SizedBox(
                     width: size,
                     height: size,
-                    child: MonopolyBoard(userState: userState, spaces: gameState?.gameBoard ?? []),
+                    child: userState != null
+                    ? MonopolyBoard(userState: userState, spaces: gameState?.gameBoard ?? [])
+                    : Placeholder(),
                   ),
                 );
               },
@@ -372,6 +356,7 @@ void _showOnlineGameDialog(BuildContext context, WebSocketService wss) async {
 
   // If user pressed cancel, result is null
   if (result != null && result.isNotEmpty) {
+    SessionManager.instance.gameId = result;
     context.read<WebSocketService>().sendEvent("onlineGame", {
       "onlineGameId": result,
     });

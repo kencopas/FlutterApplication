@@ -9,9 +9,9 @@ class VisualProperties {
   final String? description;
 
   @JsonKey(name: 'occupied_by')
-  String? occupiedBy;
+  List<String> occupiedBy;
 
-  VisualProperties({this.color, this.icon, this.description, this.occupiedBy});
+  VisualProperties({this.color, this.icon, this.description, required this.occupiedBy});
 
   factory VisualProperties.fromJson(Map<String, dynamic> json) =>
       _$VisualPropertiesFromJson(json);

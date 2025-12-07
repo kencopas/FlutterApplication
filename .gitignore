@@ -105,7 +105,6 @@ windows/flutter/generated_plugin_registrant.h
 # Web
 # ============================================
 build/web/
-lib/generated_plugin_registrant.dart  # generated—ignore
 
 # ============================================
 # IDE / Editors

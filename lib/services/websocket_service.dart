@@ -58,6 +58,7 @@ class WebSocketService extends ChangeNotifier {
       },
       onError: (e) {
         isConnected = false;
+        print("Disconnected: $e");
         notifyListeners();
       },
       onDone: () {
@@ -75,11 +76,12 @@ class WebSocketService extends ChangeNotifier {
 
   /// Handle incoming message by parsing JSON, notifying listeners, and dispatching to registered handler
   void _handleMessage(String raw) {
-    print(
-      "Received: ${raw.substring(0, raw.length > 500 ? 500 : raw.length)}${raw.length > 500 ? "... [TRUNCATED]" : ""}",
-    );
+    const encoder = JsonEncoder.withIndent('    '); // 4 spaces
 
     final jsonMsg = Map<String, dynamic>.from(jsonDecode(raw));
+    final prettyJson = encoder.convert(jsonMsg);
+
+    print("Received: ${prettyJson.substring(0, prettyJson.length > 5000 ? 5000 : prettyJson.length)}");
 
     final event = jsonMsg["event"];
 

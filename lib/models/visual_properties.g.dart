@@ -11,7 +11,9 @@ VisualProperties _$VisualPropertiesFromJson(Map<String, dynamic> json) =>
       color: json['color'] as String?,
       icon: json['icon'] as String?,
       description: json['description'] as String?,
-      occupiedBy: json['occupied_by'] as String?,
+      occupiedBy: (json['occupied_by'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$VisualPropertiesToJson(VisualProperties instance) =>
