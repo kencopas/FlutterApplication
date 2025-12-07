@@ -1,4 +1,6 @@
+import 'package:dart_frontend/core/session_manager.dart';
 import 'package:dart_frontend/core/state_manager.dart';
+import 'package:dart_frontend/models/board_space_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -19,16 +21,62 @@ String prettyJsonString(String? jsonString) {
   }
 }
 
-class BoardScreen extends StatelessWidget {
+class BoardScreen extends StatefulWidget {
   const BoardScreen({super.key});
 
   @override
+  _BoardScreenState createState() => _BoardScreenState();
+}
+
+class _BoardScreenState extends State<BoardScreen> {
+  String? userId;  // stored once here
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final id = await SessionManager.instance.userId;  // <-- async getter
+
+    setState(() {
+      userId = id;   // store it
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (userId == null) {
+      // still loading user ID
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: Consumer<WebSocketService>(
           builder: (context, wss, _) {
-            final state = context.watch<StateManager>().state;
+            final gameState = context.watch<StateManager>().state;
+            final userState = gameState?.playerStates[userId];
+            List<BoardSpaceData> boardSpaces = [];
+
+            if (gameState != null) {
+              boardSpaces = gameState.gameBoard.map((space) => space.copy()).toList();
+              for (final entry in gameState.playerStates.entries) {
+                final playerId = entry.key;
+                final playerState = entry.value;
+                final playerPosition = playerState.position;
+
+                if (playerId == userId) {
+                  // User-occupied space
+                  boardSpaces[playerPosition].visualProperties.color = "green";
+                } else {
+                  // Opponent-occupied space
+                  boardSpaces[playerPosition].visualProperties.color = "blue";
+                }
+              }
+            }
 
             // Trigger dialogs using side-effects OUTSIDE build
             _scheduleDialogIfNeeded(context, wss);
@@ -46,8 +94,8 @@ class BoardScreen extends StatelessWidget {
 
             // Owned properties names
             final ownedPropertyNames = [
-              for (var propId in state?.ownedProperties ?? [])
-                state?.boardSpaces
+              for (var propId in userState?.ownedProperties ?? [])
+                gameState?.gameBoard
                     .firstWhere((space) => space.spaceId == propId)
                     .name,
             ].join(", ");
@@ -57,9 +105,9 @@ class BoardScreen extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: SingleChildScrollView(
                 child: Text(
-                  "Money: \$${state?.moneyDollars}\n"
-                  "Position: ${state?.position}\n"
-                  "Current Space ID: ${state?.currentSpaceId}\n"
+                  "Money: \$${userState?.moneyDollars}\n"
+                  "Position: ${userState?.position}\n"
+                  "Current Space ID: ${userState?.currentSpaceId}\n"
                   "Owned Properties: $ownedPropertyNames\n\n",
                   style: const TextStyle(fontFamily: 'Courier'),
                 ),
@@ -75,7 +123,7 @@ class BoardScreen extends StatelessWidget {
                   child: SizedBox(
                     width: size,
                     height: size,
-                    child: MonopolyBoard(spaces: state?.boardSpaces ?? []),
+                    child: MonopolyBoard(userState: userState, spaces: gameState?.gameBoard ?? []),
                   ),
                 );
               },

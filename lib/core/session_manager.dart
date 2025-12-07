@@ -6,9 +6,12 @@ class SessionManager {
   SessionManager._();
 
   static const String _userKey = "userId";
+  
 
   String? _sessionId;
   String? _userId;
+  String? _cachedUserId;
+  String? _gameId;
 
   /// Creates a new session ID if none in memory; Returns `_sessionId`
   Future<String> get sessionId async {
@@ -26,13 +29,23 @@ class SessionManager {
 
     if (saved != null) {
       _userId = saved;
+      _cachedUserId = saved;
       return saved;
     }
 
     final newId = const Uuid().v4();
     await prefs.setString(_userKey, newId);
     _userId = newId;
+    _cachedUserId = newId;
 
     return newId;
   }
+
+  /// Placeholder gameId getter, acts like session ID
+  Future<String> get gameId async {
+    _gameId ??= const Uuid().v4();
+    return _gameId!;
+  }
+
+  String? get currentUserId => _cachedUserId;
 }

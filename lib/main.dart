@@ -1,3 +1,4 @@
+import 'package:dart_frontend/core/session_manager.dart';
 import 'package:dart_frontend/core/state_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,8 +18,9 @@ void main() {
             final wss = WebSocketService("wss://api.kencopasdev.work", sessionState);
 
             // Initialize AFTER the widget tree is mounted
-            Future.microtask(() {
+            Future.microtask(() async {
               wss.init();
+              await SessionManager.instance.userId;
             });
 
             return wss;

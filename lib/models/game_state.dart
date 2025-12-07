@@ -1,34 +1,24 @@
 import 'package:json_annotation/json_annotation.dart';
 import './board_space_data.dart';
+import './user_state.dart';
 
 part 'game_state.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class GameState {
-  @JsonKey(name: 'user_id')
-  final String userId;
+  @JsonKey(name: 'game_id')
+  final String gameId;
 
-  @JsonKey(name: 'money_dollars')
-  final int moneyDollars;
+  @JsonKey(name: 'player_states')
+  final Map<String, UserState> playerStates;
 
-  @JsonKey(name: 'current_space_id')
-  final String currentSpaceId;
-
-  @JsonKey(name: 'board_spaces')
-  final List<BoardSpaceData> boardSpaces;
-
-  @JsonKey(name: 'owned_properties')
-  final List<String> ownedProperties;
-
-  final int position;
+  @JsonKey(name: 'game_board')
+  final List<BoardSpaceData> gameBoard;
 
   GameState({
-    required this.userId,
-    required this.moneyDollars,
-    required this.position,
-    required this.currentSpaceId,
-    required this.boardSpaces,
-    required this.ownedProperties,
+    required this.gameId,
+    required this.playerStates,
+    required this.gameBoard
   });
 
   factory GameState.fromJson(Map<String, dynamic> json) =>

@@ -18,7 +18,7 @@ class BoardSpaceData {
   final int spaceIndex;
 
   @JsonKey(name: 'visual_properties')
-  final VisualProperties visualProperties;
+  VisualProperties visualProperties;
 
   @JsonKey(name: 'purchase_price')
   final int? purchasePrice;
@@ -51,6 +51,10 @@ class BoardSpaceData {
 
   factory BoardSpaceData.fromJson(Map<String, dynamic> json) =>
       _$BoardSpaceDataFromJson(json);
+
+  BoardSpaceData copy() {
+    return BoardSpaceData.fromJson(toJson());
+  }
 
   Map<String, dynamic> toJson() => _$BoardSpaceDataToJson(this);
 

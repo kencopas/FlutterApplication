@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dart Frontend</string>
+	<string>NOT Monopoly</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,15 +22,10 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-
-	<!-- REQUIRED FOR CLOUDFLARE TUNNELS (WSS) -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<!-- Allow any HTTPS/WSS host (needed for ephemeral CF tunnel certs) -->
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-
-		<!-- Explicit exception for trycloudflare.com -->
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>trycloudflare.com</key>
@@ -44,7 +39,6 @@
 			</dict>
 		</dict>
 	</dict>
-
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -53,18 +47,14 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-
-	<!-- FIXED: previously had malformed string -->
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
-
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

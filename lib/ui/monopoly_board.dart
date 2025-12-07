@@ -1,6 +1,9 @@
+import 'package:dart_frontend/core/state_manager.dart';
+import 'package:dart_frontend/models/user_state.dart';
 import 'package:flutter/material.dart';
 import '../models/board_space_data.dart';
 import 'dart:math';
+import '../core/session_manager.dart';
 
 /// Widget for rendering an individual Monopoly tile.
 class BoardSpaceWidget extends StatelessWidget {
@@ -17,15 +20,14 @@ class BoardSpaceWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Color bg;
     final vp = space.visualProperties;
+    final userId = SessionManager.instance.currentUserId;
 
-    if (vp.color != null) {
-      bg = Color(int.parse(vp.color!));
-    } else if (vp.occupiedBy == "Player") {
-      bg = Colors.red;
-    } else if (vp.occupiedBy == "Opponent") {
+    if (vp.color == "green") {
+      bg = Colors.green;
+    } else if (vp.color == "blue") {
       bg = Colors.blue;
     } else {
-      bg = Colors.indigo;
+      bg = Colors.transparent;
     }
 
     return InkWell(
@@ -60,9 +62,14 @@ class BoardSpaceWidget extends StatelessWidget {
 }
 
 class MonopolyBoard extends StatelessWidget {
+  final UserState userState;
   final List<BoardSpaceData> spaces;
 
-  const MonopolyBoard({super.key, required this.spaces});
+  const MonopolyBoard({
+    super.key,
+    required this.userState,
+    required this.spaces,
+  });
 
   @override
   Widget build(BuildContext context) {

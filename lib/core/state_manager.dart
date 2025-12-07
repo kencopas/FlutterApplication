@@ -9,6 +9,7 @@ class StateManager extends ChangeNotifier {
 
   /// Update session state and notify listeners
   void updateState(Map<String, dynamic> newState) {
+    if (newState.isEmpty) return;
     state = GameState.fromJson(newState);
     print("Session state updated: $state");
     notifyListeners();

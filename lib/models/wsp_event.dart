@@ -13,10 +13,11 @@ class WSPEvent {
   ) async {
     final sessionId = await SessionManager.instance.sessionId;
     final userId = await SessionManager.instance.userId;
+    final gameId = await SessionManager.instance.gameId;
 
     return WSPEvent(
       event: event,
-      data: {"sessionId": sessionId, "userId": userId, ...payload},
+      data: {"sessionId": sessionId, "userId": userId, "onlineGameId": gameId, ...payload},
     );
   }
 

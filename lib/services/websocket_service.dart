@@ -36,13 +36,18 @@ class WebSocketService extends ChangeNotifier {
   }
 
   /// Register handler
-  void on(String event, Function(Map<String, dynamic>) handler) {
+  void on(String event, void Function(Map<String, dynamic>) handler) {
     handlers[event] = handler;
   }
 
   /// Connect to WebSocket server, initialize sesison with `sessionInit` event
   Future<void> connect() async {
-    _channel = WebSocketChannel.connect(Uri.parse(url));
+    try {
+      _channel = WebSocketChannel.connect(Uri.parse(url));
+    } catch (e) {
+      print('Failed to connect to websocket server');
+      return;
+    }
 
     // Listen for messages
     _channel!.stream.listen(
@@ -74,9 +79,15 @@ class WebSocketService extends ChangeNotifier {
       "Received: ${raw.substring(0, raw.length > 500 ? 500 : raw.length)}${raw.length > 500 ? "... [TRUNCATED]" : ""}",
     );
 
-    final jsonMsg = jsonDecode(raw);
+    final jsonMsg = Map<String, dynamic>.from(jsonDecode(raw));
+
     final event = jsonMsg["event"];
-    final data = jsonMsg["data"] ?? {};
+
+    // Extract data safely
+    final rawData = jsonMsg["data"];
+    final data = rawData is Map
+        ? Map<String, dynamic>.from(rawData)
+        : <String, dynamic>{};
 
     messages.add(raw);
     notifyListeners();

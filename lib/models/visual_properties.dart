@@ -4,12 +4,12 @@ part 'visual_properties.g.dart';
 
 @JsonSerializable()
 class VisualProperties {
-  final String? color;
+  String? color;
   final String? icon;
   final String? description;
 
   @JsonKey(name: 'occupied_by')
-  final String? occupiedBy;
+  String? occupiedBy;
 
   VisualProperties({this.color, this.icon, this.description, this.occupiedBy});
 
