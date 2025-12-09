@@ -369,7 +369,7 @@ void _showEventDialog(
   Map<String, dynamic> event,
 ) {
   final String promptType = event["promptType"];
-  final Map<String, dynamic> space = event["space"];
+  final Map<String, dynamic>? space = event["space"];
   final String message = event["message"] ?? "You landed on a space.";
   final int? rentAmount = event["rentAmount"];
   final String? action = event["action"];
@@ -377,7 +377,7 @@ void _showEventDialog(
   showDialog(
     context: context,
     builder: (_) => AlertDialog(
-      title: Text("You landed on ${space["name"] ?? "a space."}"),
+      title: Text("You landed on ${space?["name"] ?? "a space."}"),
       content: Text(message),
       actions: [
         // Alert
