@@ -19,8 +19,15 @@ class BoardSpaceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color bg;
+    Widget? tileContents;
+    Color propertyColor;
     final vp = space.visualProperties;
     final userId = SessionManager.instance.currentUserId;
+
+    final bottom = space.spaceIndex > 0 && space.spaceIndex < 10;
+    final left = space.spaceIndex > 10 && space.spaceIndex < 20;
+    final top = space.spaceIndex > 20 && space.spaceIndex < 30;
+    final right = space.spaceIndex > 30 && space.spaceIndex < 40;
 
     if (vp.occupiedBy.isEmpty) {
       // Unoccupied
@@ -31,6 +38,82 @@ class BoardSpaceWidget extends StatelessWidget {
     } else {
       // Opponent Occupied
       bg = Colors.blue;
+    }
+
+    switch (vp.color?.toLowerCase()) {
+      case "green":
+        propertyColor = Colors.green;
+      case "blue":
+        propertyColor = const Color.fromARGB(255, 0, 97, 177);
+      case "light_blue":
+        propertyColor = Colors.lightBlue;
+      case "brown":
+        propertyColor = Colors.brown;
+      case "red":
+        propertyColor = Colors.red;
+      case "yellow":
+        propertyColor = Colors.yellow;
+      case "orange":
+        propertyColor = Colors.orange;
+      case "pink":
+        propertyColor = const Color.fromARGB(255, 255, 72, 133);
+      default:
+        propertyColor = Colors.transparent;
+    }
+
+    Widget tileText = Expanded(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Text(
+            space.name,
+            textAlign: TextAlign.center,
+            softWrap: true,
+            style: TextStyle(
+              fontSize: space.isCorner ? cellSize * 0.3 : cellSize * 0.15,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final verticalBar = Container(
+      height: 12,
+      width: double.infinity,
+      color: propertyColor,
+    );
+
+    final horizontalBar = Container(
+      height: double.infinity,
+      width: 12,
+      color: propertyColor,
+    );
+
+    if (bottom) {
+      tileContents = Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [verticalBar, tileText],
+      );
+    } else if (left) {
+      tileContents = Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [tileText, horizontalBar],
+      );
+    } else if (top) {
+      tileContents = Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [tileText, verticalBar],
+      );
+    } else if (right) {
+      tileContents = Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [horizontalBar, tileText],
+      );
+    } else {
+      tileContents = Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [tileText],
+      );
     }
 
     return InkWell(
@@ -45,19 +128,7 @@ class BoardSpaceWidget extends StatelessWidget {
             border: Border.all(color: Colors.white, width: 1),
             color: bg,
           ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                space.name,
-                textAlign: TextAlign.center,
-                softWrap: true,
-                style: TextStyle(
-                  fontSize: space.isCorner ? cellSize * 0.3 : cellSize * 0.15,
-                ),
-              ),
-            ),
-          ),
+          child: tileContents,
         ),
       ),
     );

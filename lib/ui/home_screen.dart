@@ -6,35 +6,44 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("NOT Monopoly"), centerTitle: true),
+      backgroundColor: const Color(0xFF202020),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 10.0,
           children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/board');
-              },
-              child: const Text("New Game", style: TextStyle(fontSize: 18)),
+            // Mascot image
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.45,
+              child: Image.asset('assets/images/NOT_monopoly_man.png'),
             ),
+
+            const SizedBox(height: 30),
+
+            // Game title
+            const Text(
+              "NOT Monopoly",
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Enter game button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
+                  horizontal: 40,
+                  vertical: 18,
                 ),
+                textStyle: const TextStyle(fontSize: 18),
               ),
               onPressed: () {
                 Navigator.pushNamed(context, '/board');
               },
-              child: const Text("Join Game", style: TextStyle(fontSize: 18)),
+              child: const Text("Start Game"),
             ),
           ],
         ),
