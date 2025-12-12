@@ -79,9 +79,8 @@ class WebSocketService extends ChangeNotifier {
     const encoder = JsonEncoder.withIndent('    '); // 4 spaces
 
     final jsonMsg = Map<String, dynamic>.from(jsonDecode(raw));
-    final prettyJson = encoder.convert(jsonMsg);
-
-    print("Received: ${prettyJson.substring(0, prettyJson.length > 5000 ? 5000 : prettyJson.length)}");
+    // final prettyJson = encoder.convert(jsonMsg);
+    // print("Received: ${prettyJson.substring(0, prettyJson.length > 5000 ? 5000 : prettyJson.length)}");
 
     final event = jsonMsg["event"];
 

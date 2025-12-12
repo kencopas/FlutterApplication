@@ -1,6 +1,6 @@
-import 'package:dart_frontend/ui/board_screen.dart';
 import 'package:flutter/material.dart';
-// import 'ui/home_screen.dart';
+import 'package:dart_frontend/ui/board_screen.dart';
+import 'package:dart_frontend/ui/home_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -14,7 +14,10 @@ class MyApp extends StatelessWidget {
         colorSchemeSeed: Colors.blue,
         brightness: Brightness.dark,
       ),
-      home: const BoardScreen(),
+      home: const HomeScreen(), // ← NEW
+      routes: {
+        '/board': (_) => const BoardScreen(), // ← Convenient named route
+      },
     );
   }
 }

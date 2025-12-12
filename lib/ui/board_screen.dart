@@ -29,7 +29,7 @@ class BoardScreen extends StatefulWidget {
 }
 
 class _BoardScreenState extends State<BoardScreen> {
-  String? userId;  // stored once here
+  String? userId; // stored once here
 
   @override
   void initState() {
@@ -38,10 +38,10 @@ class _BoardScreenState extends State<BoardScreen> {
   }
 
   Future<void> _loadUserId() async {
-    final id = await SessionManager.instance.userId;  // <-- async getter
+    final id = await SessionManager.instance.userId; // <-- async getter
 
     setState(() {
-      userId = id;   // store it
+      userId = id; // store it
     });
   }
 
@@ -49,9 +49,7 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     if (userId == null) {
       // still loading user ID
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       body: SafeArea(
@@ -68,6 +66,13 @@ class _BoardScreenState extends State<BoardScreen> {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Spacer(),
                   _RefreshButton(wss: wss),
                   _ConnectionStatusText(isConnected: wss.isConnected),
                 ],
@@ -106,8 +111,11 @@ class _BoardScreenState extends State<BoardScreen> {
                     width: size,
                     height: size,
                     child: userState != null
-                    ? MonopolyBoard(userState: userState, spaces: gameState?.gameBoard ?? [])
-                    : Placeholder(),
+                        ? MonopolyBoard(
+                            userState: userState,
+                            spaces: gameState?.gameBoard ?? [],
+                          )
+                        : Placeholder(),
                   ),
                 );
               },
