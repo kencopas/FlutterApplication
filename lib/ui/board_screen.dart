@@ -1,4 +1,5 @@
 import 'package:dart_frontend/core/session_manager.dart';
+import 'package:dart_frontend/core/sound_effects.dart';
 import 'package:dart_frontend/core/state_manager.dart';
 import 'package:dart_frontend/models/board_space_data.dart';
 import 'package:flutter/material.dart';
@@ -273,7 +274,10 @@ class _RollDiceButton extends StatelessWidget {
       height: size,
       child: FloatingActionButton(
         heroTag: "roll_dice_btn",
-        onPressed: () => wss.sendEvent("monopolyMove"),
+        onPressed: () async {
+          await wss.sendEvent("monopolyMove");
+          await SoundEffects.playDiceRoll();
+        },
         child: Icon(Icons.casino, size: size * 0.5),
       ),
     );

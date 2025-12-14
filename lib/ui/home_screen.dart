@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'color_manager.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -6,7 +7,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF202020),
+      backgroundColor: ColorSettings.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -20,12 +21,12 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 30),
 
             // Game title
-            const Text(
+            Text(
               "NOT Monopoly",
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: ColorSettings.secondary,
               ),
             ),
 

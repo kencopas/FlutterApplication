@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/board_space_data.dart';
 import 'dart:math';
 import '../core/session_manager.dart';
+import 'color_manager.dart';
 
 /// Widget for rendering an individual Monopoly tile.
 class BoardSpaceWidget extends StatelessWidget {
@@ -28,6 +29,10 @@ class BoardSpaceWidget extends StatelessWidget {
     final left = space.spaceIndex > 10 && space.spaceIndex < 20;
     final top = space.spaceIndex > 20 && space.spaceIndex < 30;
     final right = space.spaceIndex > 30 && space.spaceIndex < 40;
+    final bottomRight = space.spaceIndex == 0;
+    final bottomLeft = space.spaceIndex == 10;
+    final topLeft = space.spaceIndex == 20;
+    final topRight = space.spaceIndex == 30;
 
     if (vp.occupiedBy.isEmpty) {
       // Unoccupied
@@ -78,36 +83,97 @@ class BoardSpaceWidget extends StatelessWidget {
     );
 
     final verticalBar = Container(
-      height: 12,
-      width: double.infinity,
-      color: propertyColor,
+      height: cellSize / 3,
+      width: cellSize,
+      decoration: BoxDecoration(
+        color: propertyColor,
+        border: top
+            ? Border(
+                top: BorderSide(
+                  color: ColorSettings.secondary, // border color
+                  width: 2.0, // border thickness
+                ),
+              )
+            : Border(
+                bottom: BorderSide(
+                  color: ColorSettings.secondary, // border color
+                  width: 2.0, // border thickness
+                ),
+              ),
+      ),
     );
 
     final horizontalBar = Container(
-      height: double.infinity,
-      width: 12,
-      color: propertyColor,
+      height: cellSize,
+      width: cellSize / 3,
+      decoration: BoxDecoration(
+        color: propertyColor,
+        border: left
+            ? Border(
+                left: BorderSide(
+                  color: ColorSettings.secondary, // border color
+                  width: 2.0, // border thickness
+                ),
+              )
+            : Border(
+                right: BorderSide(
+                  color: ColorSettings.secondary, // border color
+                  width: 2.0, // border thickness
+                ),
+              ),
+      ),
+    );
+
+    final tileBorder = Border(
+      top: BorderSide(
+        width: (top || topLeft || topRight) ? 2.0 : 1.0,
+        color: ColorSettings.secondary,
+      ),
+      left: BorderSide(
+        width: (left || topLeft || bottomLeft) ? 2.0 : 1.0,
+        color: ColorSettings.secondary,
+      ),
+      bottom: BorderSide(
+        width: (bottom || bottomLeft || bottomRight) ? 2.0 : 1.0,
+        color: ColorSettings.secondary,
+      ),
+      right: BorderSide(
+        width: (right || bottomRight || topRight) ? 2.0 : 1.0,
+        color: ColorSettings.secondary,
+      ),
     );
 
     if (bottom) {
       tileContents = Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [verticalBar, tileText],
+        children: [
+          if (propertyColor != Colors.transparent) verticalBar,
+          tileText,
+        ],
       );
     } else if (left) {
       tileContents = Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [tileText, horizontalBar],
+        children: [
+          tileText,
+          if (propertyColor != Colors.transparent) horizontalBar,
+        ],
       );
     } else if (top) {
       tileContents = Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [tileText, verticalBar],
+        children: [
+          tileText,
+          if (propertyColor != Colors.transparent) verticalBar,
+        ],
       );
     } else if (right) {
       tileContents = Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [horizontalBar, tileText],
+        children: [
+          if (propertyColor != Colors.transparent) horizontalBar,
+          tileText,
+        ],
       );
     } else {
       tileContents = Column(
@@ -124,10 +190,7 @@ class BoardSpaceWidget extends StatelessWidget {
         width: 200,
         height: 200,
         child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white, width: 1),
-            color: bg,
-          ),
+          decoration: BoxDecoration(border: tileBorder, color: bg),
           child: tileContents,
         ),
       ),
@@ -162,7 +225,7 @@ class MonopolyBoard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final boardSize = min(constraints.maxWidth, constraints.maxHeight);
-        final cellSize = boardSize / 13;
+        final cellSize = boardSize / 12.22;
 
         // Top Row | Free Parking -> Go To Jail
         final topRowSpaces = Row(
@@ -280,7 +343,10 @@ class _RowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Tile(
-      constraints: BoxConstraints(maxWidth: cellSize, maxHeight: cellSize * 2),
+      constraints: BoxConstraints(
+        maxWidth: cellSize,
+        maxHeight: cellSize * 1.61,
+      ),
       s: s,
       cellSize: cellSize,
     );
@@ -296,7 +362,10 @@ class _ColumnTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Tile(
-      constraints: BoxConstraints(maxWidth: cellSize * 2, maxHeight: cellSize),
+      constraints: BoxConstraints(
+        maxWidth: cellSize * 1.61,
+        maxHeight: cellSize,
+      ),
       s: s,
       cellSize: cellSize,
     );
@@ -313,8 +382,8 @@ class _CornerTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Tile(
       constraints: BoxConstraints(
-        maxWidth: cellSize * 2,
-        maxHeight: cellSize * 2,
+        maxWidth: cellSize * 1.61,
+        maxHeight: cellSize * 1.61,
       ),
       s: s,
       cellSize: cellSize,
@@ -336,6 +405,9 @@ class _MiddleArea extends StatelessWidget {
       ),
       child: Container(
         alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: ColorSettings.secondary, width: 1),
+        ),
         child: Text(
           "NOT Monopoly",
           textScaler: TextScaler.linear(cellSize * 0.07),
