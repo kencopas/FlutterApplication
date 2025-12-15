@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dart_frontend/ui/board_screen.dart';
 import 'package:dart_frontend/ui/home_screen.dart';
+import 'package:dart_frontend/ui/dashboard.dart';
 import 'ui/color_manager.dart';
 
 class MyApp extends StatelessWidget {
@@ -13,9 +14,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: ColorSettings.accent,
-        brightness: ColorSettings.brightness,
+        brightness: Brightness.dark,
       ),
-      home: const HomeScreen(), // ← NEW
+      home: const Dashboard(), // ← NEW
       routes: {
         '/board': (_) => const BoardScreen(), // ← Convenient named route
       },
