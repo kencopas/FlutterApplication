@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dart_frontend/core/session_manager.dart';
 import 'package:dart_frontend/core/state_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -10,12 +11,15 @@ class WebSocketService extends ChangeNotifier {
 
   bool isConnected = false;
   bool _initialized = false;
+  bool _isPlayersTurn = false;
   List<String> messages = [];
   Map<String, dynamic>? lastPromptEvent;
 
   final Map<String, void Function(Map<String, dynamic>)> handlers = {};
   final String url;
   final StateManager stateManager;
+
+  bool get isPlayersTurn => stateManager.state?.currentTurnUid == SessionManager.instance.currentUserId;
 
   WebSocketService(this.url, this.stateManager);
 
@@ -31,6 +35,11 @@ class WebSocketService extends ChangeNotifier {
     // Game logic handlers
     on("showDialog", (data) {
       lastPromptEvent = data;
+      notifyListeners();
+    });
+
+    on("updatePlayerTurn", (data) {
+      _isPlayersTurn = data['isPlayersTurn'];
       notifyListeners();
     });
   }
@@ -63,6 +72,7 @@ class WebSocketService extends ChangeNotifier {
       },
       onDone: () {
         isConnected = false;
+        print("Done");
         notifyListeners();
       },
     );
@@ -111,6 +121,7 @@ class WebSocketService extends ChangeNotifier {
   /// Clean up resources
   @override
   void dispose() {
+    print('WebSocketService disposed');
     _channel?.sink.close();
     super.dispose();
   }

@@ -79,6 +79,7 @@ flutter:
   assets:
     - assets/images/NOT_monopoly_man.png
     - assets/sounds/dice-roll.mp3
+    - assets/sounds/cha-ching.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -15,10 +15,18 @@ class GameState {
   @JsonKey(name: 'game_board')
   final List<BoardSpaceData> gameBoard;
 
+  @JsonKey(name: 'current_turn')
+  final int currentTurn;
+
+  @JsonKey(name: 'current_turn_uid')
+  final String currentTurnUid;
+
   GameState({
     required this.gameId,
     required this.playerStates,
-    required this.gameBoard
+    required this.gameBoard,
+    required this.currentTurn,
+    required this.currentTurnUid,
   });
 
   factory GameState.fromJson(Map<String, dynamic> json) =>

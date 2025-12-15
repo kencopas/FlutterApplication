@@ -7,4 +7,8 @@ class SoundEffects {
   static Future<void> playDiceRoll() async {
     await _player.play(AssetSource('sounds/dice-roll.mp3'));
   }
+
+  static Future<void> playMoneySound() async {
+    await _player.play(AssetSource('sounds/cha-ching.mp3'));
+  }
 }

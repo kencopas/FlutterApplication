@@ -12,7 +12,12 @@ class StateManager extends ChangeNotifier {
     if (newState.isEmpty) return;
     state = GameState.fromJson(newState);
     print("Session state updated: $state");
-    notifyListeners();
+    try {
+      notifyListeners();
+    } catch (e, stack) {
+      debugPrint('Listener error: $e');
+      debugPrintStack(stackTrace: stack);
+    }
   }
 
   /// Register session handlers

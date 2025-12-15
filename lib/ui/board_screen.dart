@@ -267,17 +267,25 @@ class _RollDiceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wss = context.read<WebSocketService>();
+    final wss = context.watch<WebSocketService>();
+    final enabled = wss.isPlayersTurn;
 
     return SizedBox(
       width: size,
       height: size,
       child: FloatingActionButton(
         heroTag: "roll_dice_btn",
-        onPressed: () async {
-          await wss.sendEvent("monopolyMove");
-          await SoundEffects.playDiceRoll();
-        },
+        onPressed: enabled
+            ? () async {
+                await wss.sendEvent("monopolyMove");
+                await SoundEffects.playDiceRoll();
+              }
+            : null,
+        backgroundColor: enabled
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.primaryContainer.withAlpha(140),
+        foregroundColor: enabled ? Colors.white : Colors.white.withAlpha(140),
+        elevation: enabled ? 6 : 0,
         child: Icon(Icons.casino, size: size * 0.5),
       ),
     );
@@ -413,6 +421,7 @@ void _showEventDialog(
           TextButton(
             onPressed: () {
               wss.sendEvent("buyProperty");
+              SoundEffects.playMoneySound();
               Navigator.pop(context);
             },
             child: const Text("Buy"),

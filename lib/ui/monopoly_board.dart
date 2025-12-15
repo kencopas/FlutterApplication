@@ -39,10 +39,10 @@ class BoardSpaceWidget extends StatelessWidget {
       bg = Colors.transparent;
     } else if (vp.occupiedBy.contains(userId)) {
       // User Occupied
-      bg = Colors.green;
+      bg = const Color.fromARGB(125, 0, 223, 0);
     } else {
       // Opponent Occupied
-      bg = Colors.blue;
+      bg = const Color.fromARGB(125, 57, 173, 255);
     }
 
     switch (vp.color?.toLowerCase()) {

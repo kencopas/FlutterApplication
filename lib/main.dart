@@ -7,6 +7,9 @@ import 'app.dart';
 import 'services/websocket_service.dart';
 
 void main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+  };
   runApp(
     MultiProvider(
       providers: [
@@ -15,7 +18,10 @@ void main() {
         ChangeNotifierProvider(
           create: (context) {
             final sessionState = context.read<StateManager>();
-            final wss = WebSocketService("wss://api.kencopasdev.work", sessionState);
+            final wss = WebSocketService(
+              "wss://api.kencopasdev.work",
+              sessionState,
+            );
 
             // Initialize AFTER the widget tree is mounted
             Future.microtask(() async {
