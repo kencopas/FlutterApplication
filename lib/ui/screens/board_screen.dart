@@ -1,13 +1,11 @@
 import 'package:dart_frontend/core/session_manager.dart';
 import 'package:dart_frontend/core/sound_effects.dart';
 import 'package:dart_frontend/core/state_manager.dart';
-import 'package:dart_frontend/models/board_space_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
-import '../services/websocket_service.dart';
-import '../ui/monopoly_board.dart';
+import '../../services/websocket_service.dart';
 
 /// Pretty JSON (same as your HomeScreen)
 String prettyJsonString(String? jsonString) {
@@ -111,12 +109,7 @@ class _BoardScreenState extends State<BoardScreen> {
                   child: SizedBox(
                     width: size,
                     height: size,
-                    child: userState != null
-                        ? MonopolyBoard(
-                            userState: userState,
-                            spaces: gameState?.gameBoard ?? [],
-                          )
-                        : Placeholder(),
+                    child: Placeholder(),
                   ),
                 );
               },
