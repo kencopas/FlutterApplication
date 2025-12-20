@@ -2,6 +2,7 @@ import 'package:dart_frontend/core/session_manager.dart';
 import 'package:dart_frontend/core/sound_effects.dart';
 import 'package:dart_frontend/core/state_manager.dart';
 import 'package:dart_frontend/models/board_space_data.dart';
+import 'package:dart_frontend/models/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -58,6 +59,7 @@ class _BoardScreenState extends State<BoardScreen> {
           builder: (context, wss, _) {
             final gameState = context.watch<StateManager>().state;
             final userState = gameState?.playerStates[userId];
+            final currentUserId = SessionManager.instance.currentUserId;
 
             // Trigger dialogs using side-effects OUTSIDE build
             _scheduleDialogIfNeeded(context, wss);
@@ -80,27 +82,16 @@ class _BoardScreenState extends State<BoardScreen> {
               ),
             );
 
-            // Owned properties names
-            final ownedPropertyNames = [
-              for (var propId in userState?.ownedProperties ?? [])
-                gameState?.gameBoard
-                    .firstWhere((space) => space.spaceId == propId)
-                    .name,
-            ].join(", ");
+            final List<Widget> userStates = [
+              // 1️⃣ Current user first
+              if (userState != null) _playerStateItem(userState),
 
-            // Game State Info
-            final gameStateInfo = Padding(
-              padding: const EdgeInsets.all(12),
-              child: SingleChildScrollView(
-                child: Text(
-                  "Money: \$${userState?.moneyDollars}\n"
-                  "Position: ${userState?.position}\n"
-                  "Current Space ID: ${userState?.currentSpaceId}\n"
-                  "Owned Properties: $ownedPropertyNames\n\n",
-                  style: const TextStyle(fontFamily: 'Courier'),
-                ),
-              ),
-            );
+              // 2️⃣ All other players
+              if (gameState != null)
+                ...gameState.playerStates.entries
+                    .where((entry) => entry.key != currentUserId)
+                    .map((entry) => _playerStateItem(entry.value)),
+            ];
 
             // Game board
             final gameBoard = LayoutBuilder(
@@ -167,7 +158,18 @@ class _BoardScreenState extends State<BoardScreen> {
                         flex: 2,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [header, const Divider(), gameStateInfo],
+                          children: [
+                            header,
+                            const Divider(),
+                            SizedBox(
+                              height: 400,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: userStates,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -196,7 +198,12 @@ class _BoardScreenState extends State<BoardScreen> {
                     children: [
                       header,
                       const Divider(),
-                      gameStateInfo,
+                      SizedBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: userStates,
+                        ),
+                      ),
 
                       Padding(
                         padding: const EdgeInsets.only(bottom: 80),
@@ -365,6 +372,24 @@ class _OnlineGameDialogState extends State<_OnlineGameDialog> {
       ],
     );
   }
+}
+
+Widget _playerStateItem(UserState state) {
+  return Expanded(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: 100, // ← your minimum height
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(
+          "Money: \$${state.moneyDollars}",
+          softWrap: true,
+          style: const TextStyle(fontFamily: 'Courier'),
+        ),
+      ),
+    ),
+  );
 }
 
 void _showOnlineGameDialog(BuildContext context, WebSocketService wss) async {

@@ -176,9 +176,20 @@ class BoardSpaceWidget extends StatelessWidget {
         ],
       );
     } else {
+      Icon cornerIcon;
+      if (space.spaceIndex == 0) {
+        cornerIcon = Icon(Icons.arrow_back, size: cellSize * 0.8);
+      } else if (space.spaceIndex == 10) {
+        cornerIcon = Icon(Icons.lock, size: cellSize * 0.8);
+      } else if (space.spaceIndex == 20) {
+        cornerIcon = Icon(Icons.local_parking_rounded, size: cellSize * 0.8);
+      } else {
+        cornerIcon = Icon(Icons.local_police_outlined, size: cellSize * 0.8);
+      }
+
       tileContents = Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [tileText],
+        children: [Expanded(child: cornerIcon)],
       );
     }
 
