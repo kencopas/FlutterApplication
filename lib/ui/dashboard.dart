@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'color_manager.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -85,6 +86,10 @@ class Dashboard extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(height: 140, child: _PortfolioLineChart()),
                   ],
                 ),
               ),
@@ -163,10 +168,7 @@ class _DashboardCard extends StatelessWidget {
   final BuildContext context;
   final Widget child;
 
-  const _DashboardCard({
-    required this.context,
-    required this.child,
-  });
+  const _DashboardCard({required this.context, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -176,9 +178,7 @@ class _DashboardCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: ColorSettings.surface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: ColorSettings.border(context),
-        ),
+        border: Border.all(color: ColorSettings.border(context)),
       ),
       child: child,
     );
@@ -230,6 +230,45 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
+class _PortfolioLineChart extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(show: false),
+        titlesData: FlTitlesData(show: false),
+        borderData: FlBorderData(show: false),
+        lineTouchData: LineTouchData(enabled: false),
+        minX: 0,
+        maxX: 6,
+        minY: 0,
+        maxY: 6,
+        lineBarsData: [
+          LineChartBarData(
+            spots: const [
+              FlSpot(0, 3),
+              FlSpot(1, 3.5),
+              FlSpot(2, 3.2),
+              FlSpot(3, 4),
+              FlSpot(4, 4.6),
+              FlSpot(5, 4.2),
+              FlSpot(6, 5),
+            ],
+            isCurved: true,
+            barWidth: 3,
+            color: ColorSettings.accent,
+            dotData: FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: ColorSettings.accent.withValues(alpha: 0.15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MarketTile extends StatelessWidget {
   final BuildContext context;
   final String title;
@@ -267,15 +306,9 @@ class _MarketTile extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Text(
-                yesPrice,
-                style: TextStyle(color: ColorSettings.positive),
-              ),
+              Text(yesPrice, style: TextStyle(color: ColorSettings.positive)),
               const SizedBox(width: 16),
-              Text(
-                noPrice,
-                style: TextStyle(color: ColorSettings.negative),
-              ),
+              Text(noPrice, style: TextStyle(color: ColorSettings.negative)),
             ],
           ),
         ],
